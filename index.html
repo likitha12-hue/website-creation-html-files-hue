@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✨ Anime World ✨</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --sky1: #0a0a2e;
+    --sky2: #1a1a6e;
+    --accent: #ff6ad5;
+    --yellow: #ffd700;
+    --cyan: #00f0ff;
+    --green: #39ff14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(180deg, var(--sky1) 0%, #0d1b4b 40%, #1a3a6e 70%, #2a5a2a 100%);
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    cursor: crosshair;
+  }
+
+  /* ===== STARS ===== */
+  .stars { position: fixed; top:0; left:0; width:100%; height:60%; z-index:0; pointer-events:none; }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle linear infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.2; transform:scale(0.5); }
+  }
+
+  /* ===== MOON ===== */
+  .moon {
+    position: absolute;
+    top: 40px; right: 100px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at 35% 35%, #fffde7, #ffd700);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #ffd70088, 0 0 80px #ffd70033;
+    animation: moonFloat 6s ease-in-out infinite;
+    z-index: 1;
+  }
+  .moon::after {
+    content:'';
+    position:absolute; top:10px; left:15px;
+    width:20px; height:20px;
+    background: rgba(180,150,0,0.3);
+    border-radius:50%;
+    box-shadow: 30px 5px 0 rgba(180,150,0,0.2), 10px 35px 0 rgba(180,150,0,0.15);
+  }
+  @keyframes moonFloat {
+    0%,100%{transform:translateY(0) rotate(-5deg);}
+    50%{transform:translateY(-15px) rotate(5deg);}
+  }
+
+  /* ===== CLOUDS ===== */
+  .cloud {
+    position: absolute;
+    border-radius: 50px;
+    opacity: 0.85;
+    animation: cloudDrift linear infinite;
+    z-index:2;
+  }
+  .cloud::before, .cloud::after {
+    content:'';
+    position:absolute;
+    border-radius:50%;
+    background: inherit;
+  }
+  .cloud-1 { width:120px;height:35px; top:80px; background:#c8d8ff; animation-duration:28s; animation-delay:-5s; }
+  .cloud-1::before { width:60px;height:60px; top:-30px; left:20px; }
+  .cloud-1::after { width:45px;height:45px; top:-20px; left:55px; }
+  .cloud-2 { width:90px;height:28px; top:130px; background:#d0e0ff; animation-duration:35s; animation-delay:-15s; }
+  .cloud-2::before { width:45px;height:45px; top:-22px; left:15px; }
+  .cloud-2::after { width:35px;height:35px; top:-15px; left:45px; }
+  .cloud-3 { width:150px;height:40px; top:60px; background:#b8ccff; animation-duration:22s; animation-delay:-10s; }
+  .cloud-3::before { width:75px;height:75px; top:-38px; left:25px; }
+  .cloud-3::after { width:55px;height:55px; top:-28px; left:75px; }
+  @keyframes cloudDrift {
+    from{left:-200px;}
+    to{left:110%;}
+  }
+
+  /* ===== MOUNTAINS ===== */
+  .mountains { position:absolute; bottom:0; left:0; width:100%; height:45%; z-index:3; pointer-events:none; }
+  .mountain {
+    position:absolute; bottom:0;
+    width:0; height:0;
+    border-style:solid;
+  }
+  .mt1 { border-width:0 200px 320px 200px; border-color:transparent transparent #1a2a5e transparent; left:-50px; }
+  .mt2 { border-width:0 260px 400px 260px; border-color:transparent transparent #14204e transparent; left:150px; bottom:0; }
+  .mt3 { border-width:0 180px 280px 180px; border-color:transparent transparent #1f2d6e transparent; left:500px; }
+  .mt4 { border-width:0 220px 350px 220px; border-color:transparent transparent #162040 transparent; left:700px; }
+  .mt5 { border-width:0 170px 260px 170px; border-color:transparent transparent #1a2a5e transparent; right:200px; }
+  .mt6 { border-width:0 250px 380px 250px; border-color:transparent transparent #12183a transparent; right:-50px; }
+  /* Snow caps */
+  .mt1::after { content:''; position:absolute; top:-320px; left:-40px; width:0;height:0; border-style:solid; border-width:0 40px 70px 40px; border-color:transparent transparent #e8eeff transparent; }
+  .mt2::after { content:''; position:absolute; top:-400px; left:-55px; width:0;height:0; border-style:solid; border-width:0 55px 90px 55px; border-color:transparent transparent #eef0ff transparent; }
+
+  /* ===== GROUND ===== */
+  .ground {
+    position: absolute; bottom:0; left:0; width:100%; height:18%;
+    background: linear-gradient(180deg, #2a5a2a 0%, #1a3a1a 100%);
+    z-index:4;
+    border-top: 3px solid #39ff1433;
+  }
+  .ground::before {
+    content:'';
+    position:absolute; top:0; left:0; width:100%; height:6px;
+    background: repeating-linear-gradient(90deg, #39ff14 0px, #39ff14 4px, transparent 4px, transparent 20px);
+    opacity:0.4;
+  }
+
+  /* ===== ROAD ===== */
+  .road {
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:220px; height:100%;
+    background: #111;
+    z-index:5;
+  }
+  .road-line {
+    position:absolute; left:50%; transform:translateX(-50%);
+    width:8px; height:30px; background:#ffd700;
+    animation:roadMove 0.5s linear infinite;
+  }
+  .road-line:nth-child(1){top:10px;}
+  .road-line:nth-child(2){top:70px;}
+  .road-line:nth-child(3){top:130px;}
+  @keyframes roadMove {
+    from{transform:translateX(-50%) translateY(0);}
+    to{transform:translateX(-50%) translateY(60px);}
+  }
+
+  /* ===== TREES ===== */
+  .tree { position:absolute; bottom:100%; z-index:6; }
+  .tree-trunk { width:12px; height:30px; background:#5a3010; margin:0 auto; }
+  .tree-top {
+    width:0;height:0;
+    border-left:30px solid transparent;
+    border-right:30px solid transparent;
+    border-bottom:50px solid #1e7a1e;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 8px #39ff1444);
+  }
+  .tree-top2 {
+    width:0;height:0;
+    border-left:22px solid transparent;
+    border-right:22px solid transparent;
+    border-bottom:40px solid #27a827;
+    margin: 0 auto;
+    margin-top:-30px;
+  }
+
+  /* ===== FLOWERS ===== */
+  .flower { position:absolute; z-index:7; animation: flowerSway 2s ease-in-out infinite; }
+  .flower-stem { width:3px; height:20px; background:#2d8a2d; margin:0 auto; }
+  .flower-head { font-size:16px; text-align:center; margin-top:-5px; }
+  @keyframes flowerSway {
+    0%,100%{transform:rotate(-5deg);}
+    50%{transform:rotate(5deg);}
+  }
+
+  /* ===== ANIME CHARACTER: HERO ===== */
+  .hero-wrap {
+    position:absolute;
+    bottom: 18%;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:10;
+    animation: heroRun 0.4s steps(1) infinite;
+  }
+  .hero {
+    position:relative;
+    width:60px;
+    animation: heroBounce 0.4s ease-in-out infinite;
+  }
+  @keyframes heroBounce {
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-6px);}
+  }
+  /* Hair */
+  .hero-hair {
+    position:absolute; top:-18px; left:3px;
+    width:54px; height:30px;
+    background:#1a1a1a;
+    border-radius:50% 50% 0 0;
+    z-index:2;
+  }
+  .hero-hair::before {
+    content:'';
+    position:absolute; top:-8px; left:10px;
+    width:20px; height:25px;
+    background:#1a1a1a;
+    border-radius:50% 50% 0 50%;
+    transform:rotate(-20deg);
+  }
+  .hero-hair::after {
+    content:'';
+    position:absolute; top:-5px; right:8px;
+    width:15px; height:20px;
+    background:#1a1a1a;
+    border-radius:50%;
+    transform:rotate(15deg);
+  }
+  /* Head */
+  .hero-head {
+    width:54px; height:54px;
+    background: linear-gradient(135deg, #ffdab9, #ffb899);
+    border-radius:45% 45% 40% 40%;
+    position:relative;
+    z-index:1;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    border:2px solid #e8945a;
+  }
+  /* Eyes */
+  .hero-eye {
+    position:absolute;
+    width:14px; height:16px;
+    background:white;
+    border-radius:50%;
+    border:2px solid #1a1a1a;
+    top:18px;
+    overflow:hidden;
+  }
+  .hero-eye-l{left:8px;}
+  .hero-eye-r{right:8px;}
+  .hero-eye::after {
+    content:'';
+    position:absolute; top:3px; left:3px;
+    width:8px; height:10px;
+    background: #6a3aff;
+    border-radius:50%;
+    border:1.5px solid #1a1a1a;
+    animation:eyeBlink 3s ease-in-out infinite;
+  }
+  .hero-eye::before {
+    content:'';
+    position:absolute; top:2px; left:2px;
+    width:4px; height:4px;
+    background:white;
+    border-radius:50%;
+    z-index:2;
+  }
+  @keyframes eyeBlink {
+    0%,92%,100%{transform:scaleY(1);}
+    96%{transform:scaleY(0.05);}
+  }
+  /* Blush */
+  .hero-blush {
+    position:absolute;
+    width:10px; height:6px;
+    background:#ff9090;
+    border-radius:50%;
+    top:30px; opacity:0.5;
+  }
+  .hero-blush-l{left:4px;}
+  .hero-blush-r{right:4px;}
+  /* Mouth */
+  .hero-mouth {
+    position:absolute;
+    width:14px; height:8px;
+    border-bottom:2.5px solid #c0603a;
+    border-radius:0 0 50% 50%;
+    bottom:10px; left:50%; transform:translateX(-50%);
+  }
+  /* Body */
+  .hero-body {
+    width:44px; height:40px;
+    background: linear-gradient(180deg, #ff4488 0%, #cc1166 100%);
+    border-radius:6px 6px 10px 10px;
+    margin:0 auto;
+    position:relative;
+    border:2px solid #aa0055;
+  }
+  /* Scarf */
+  .hero-scarf {
+    width:50px; height:12px;
+    background:linear-gradient(90deg, #ff6600, #ffaa00);
+    border-radius:4px;
+    margin:-6px auto 0;
+    position:relative;
+    z-index:3;
+    border:1px solid #cc5500;
+  }
+  .hero-scarf::after {
+    content:'';
+    position:absolute; right:-4px; top:2px;
+    width:10px; height:18px;
+    background:linear-gradient(180deg,#ff6600,#ffaa00);
+    border-radius:0 2px 6px 2px;
+    transform:rotate(10deg);
+  }
+  /* Arms */
+  .hero-arm {
+    position:absolute;
+    width:14px; height:30px;
+    background:linear-gradient(180deg,#ff4488,#cc1166);
+    border-radius:4px;
+    border:2px solid #aa0055;
+    top:2px;
+  }
+  .hero-arm-l { left:-14px; animation: armSwingL 0.4s ease-in-out infinite; transform-origin:top center; }
+  .hero-arm-r { right:-14px; animation: armSwingR 0.4s ease-in-out infinite; transform-origin:top center; }
+  @keyframes armSwingL { 0%,100%{transform:rotate(30deg);} 50%{transform:rotate(-30deg);} }
+  @keyframes armSwingR { 0%,100%{transform:rotate(-30deg);} 50%{transform:rotate(30deg);} }
+  /* Legs */
+  .hero-legs { display:flex; justify-content:space-around; width:36px; margin:0 auto; }
+  .hero-leg {
+    width:14px; height:30px;
+    background:linear-gradient(180deg,#2255cc,#1133aa);
+    border-radius:3px 3px 5px 5px;
+    border:2px solid #1a2a99;
+  }
+  .hero-leg-l { animation: legSwingL 0.4s ease-in-out infinite; transform-origin:top center; }
+  .hero-leg-r { animation: legSwingR 0.4s ease-in-out infinite; transform-origin:top center; }
+  @keyframes legSwingL { 0%,100%{transform:rotate(-20deg);} 50%{transform:rotate(20deg);} }
+  @keyframes legSwingR { 0%,100%{transform:rotate(20deg);} 50%{transform:rotate(-20deg);} }
+  /* Shoes */
+  .hero-shoe {
+    width:18px; height:10px;
+    background:#1a1a1a;
+    border-radius:3px 6px 5px 3px;
+    border:1.5px solid #000;
+    margin-top:-2px;
+  }
+
+  /* ===== SIDEKICK FOX ===== */
+  .fox-wrap {
+    position:absolute; bottom:18%; left:calc(50% + 70px);
+    z-index:9;
+    animation:foxHop 0.6s ease-in-out infinite;
+  }
+  @keyframes foxHop {
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+  }
+  .fox-body {
+    width:40px; height:30px;
+    background:linear-gradient(135deg, #ff8c00, #ff6600);
+    border-radius:50% 50% 40% 40%;
+    position:relative;
+    border:2px solid #cc5500;
+  }
+  .fox-head {
+    width:34px; height:28px;
+    background:linear-gradient(135deg, #ff8c00, #ff6600);
+    border-radius:40% 40% 35% 35%;
+    margin:0 auto;
+    position:relative;
+    border:2px solid #cc5500;
+  }
+  .fox-ear {
+    position:absolute;
+    width:0;height:0;
+    border-left:8px solid transparent;
+    border-right:8px solid transparent;
+    border-bottom:18px solid #ff6600;
+    top:-16px;
+  }
+  .fox-ear-l{left:2px;}
+  .fox-ear-r{right:2px;}
+  .fox-eye {
+    position:absolute; top:8px;
+    width:8px; height:8px;
+    background:#1a1a1a;
+    border-radius:50%;
+  }
+  .fox-eye-l{left:5px;}
+  .fox-eye-r{right:5px;}
+  .fox-nose {
+    position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+    width:6px; height:5px;
+    background:#c03030;
+    border-radius:50%;
+  }
+  .fox-tail {
+    position:absolute; right:-25px; bottom:-5px;
+    width:30px; height:20px;
+    background:linear-gradient(135deg,#ff8c00,#ff6600);
+    border-radius:50% 80% 80% 20%;
+    border:2px solid #cc5500;
+    animation: tailWag 0.6s ease-in-out infinite;
+    transform-origin: left center;
+  }
+  .fox-tail::after {
+    content:'';
+    position:absolute; right:-8px; top:-4px;
+    width:18px; height:14px;
+    background:white;
+    border-radius:50%;
+  }
+  @keyframes tailWag {
+    0%,100%{transform:rotate(-20deg);}
+    50%{transform:rotate(20deg);}
+  }
+
+  /* ===== FLOATING SPARKLES ===== */
+  .sparkle {
+    position:fixed;
+    font-size:20px;
+    animation: sparkleFly linear infinite;
+    pointer-events:none;
+    z-index:20;
+    filter:drop-shadow(0 0 6px gold);
+  }
+  @keyframes sparkleFly {
+    0%{transform:translateY(100vh) rotate(0deg); opacity:1;}
+    100%{transform:translateY(-10vh) rotate(720deg); opacity:0;}
+  }
+
+  /* ===== FIREWORKS ===== */
+  .firework {
+    position:fixed;
+    width:6px;height:6px;
+    border-radius:50%;
+    animation:fireworkBurst 1s ease-out forwards;
+    pointer-events:none;
+    z-index:25;
+  }
+  @keyframes fireworkBurst {
+    0%{transform:scale(0);opacity:1;}
+    100%{transform:scale(3);opacity:0;}
+  }
+
+  /* ===== POWER AURA ===== */
+  .power-aura {
+    position:absolute;
+    bottom:16%;
+    left:50%;
+    transform:translateX(-50%);
+    width:100px; height:40px;
+    background:radial-gradient(ellipse, rgba(100,60,255,0.4) 0%, transparent 70%);
+    border-radius:50%;
+    animation:auraPulse 0.4s ease-in-out infinite;
+    z-index:8;
+    pointer-events:none;
+  }
+  @keyframes auraPulse {
+    0%,100%{transform:translateX(-50%) scaleX(1);}
+    50%{transform:translateX(-50%) scaleX(1.3);}
+  }
+
+  /* ===== SPEED LINES ===== */
+  .speed-lines {
+    position:absolute;
+    bottom:18%;
+    left:0; width:100%; height:80px;
+    z-index:7;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .speed-line {
+    position:absolute;
+    height:2px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: speedLineAnim linear infinite;
+  }
+  @keyframes speedLineAnim {
+    from{left:100%; opacity:0.6;}
+    to{left:-100%; opacity:0;}
+  }
+
+  /* ===== JAPANESE TITLE ===== */
+  .title-wrap {
+    position:fixed;
+    top:20px; left:50%; transform:translateX(-50%);
+    z-index:30;
+    text-align:center;
+    pointer-events:none;
+  }
+  .title-jp {
+    font-family:'Bangers', cursive;
+    font-size:clamp(28px,5vw,52px);
+    letter-spacing:4px;
+    color:transparent;
+    -webkit-text-stroke:2px var(--cyan);
+    text-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+    animation:titlePulse 2s ease-in-out infinite;
+  }
+  .title-sub {
+    font-family:'Nunito', sans-serif;
+    font-size:14px;
+    color:rgba(255,255,255,0.6);
+    letter-spacing:6px;
+    text-transform:uppercase;
+  }
+  @keyframes titlePulse {
+    0%,100%{text-shadow:0 0 20px var(--cyan), 0 0 40px var(--cyan);}
+    50%{text-shadow:0 0 40px var(--accent), 0 0 80px var(--accent), 0 0 120px var(--accent);}
+  }
+
+  /* ===== ENERGY ORBS ===== */
+  .orb {
+    position:fixed;
+    border-radius:50%;
+    animation:orbFloat ease-in-out infinite;
+    pointer-events:none;
+    z-index:6;
+  }
+  @keyframes orbFloat {
+    0%,100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-20px) scale(1.1);}
+  }
+
+  /* ===== CLICK EFFECT ===== */
+  .click-burst {
+    position:fixed;
+    font-size:24px;
+    pointer-events:none;
+    z-index:50;
+    animation:burstAnim 0.8s ease-out forwards;
+  }
+  @keyframes burstAnim {
+    0%{transform:scale(0) rotate(0deg); opacity:1;}
+    100%{transform:scale(2) rotate(180deg); opacity:0;}
+  }
+
+  /* ===== SCORE / INFO ===== */
+  .info-panel {
+    position:fixed;
+    bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6);
+    border:1px solid var(--cyan);
+    border-radius:12px;
+    padding:12px 18px;
+    color:white;
+    font-family:'Nunito',sans-serif;
+    font-size:13px;
+    z-index:40;
+    backdrop-filter:blur(4px);
+    box-shadow:0 0 20px rgba(0,240,255,0.2);
+  }
+  .info-panel span { color:var(--cyan); font-weight:900; }
+
+  /* ===== LIGHTNING ===== */
+  .lightning {
+    position:fixed;
+    top:0; left:50%;
+    width:3px;
+    background:linear-gradient(180deg, white, var(--yellow), transparent);
+    transform-origin:top;
+    animation:lightningFlash 4s ease-in-out infinite;
+    z-index:22;
+    pointer-events:none;
+  }
+  @keyframes lightningFlash {
+    0%,90%,100%{opacity:0; height:0;}
+    92%{opacity:1; height:40vh;}
+    94%{opacity:0; height:0;}
+    96%{opacity:0.7; height:30vh;}
+    98%{opacity:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Moon -->
+<div class="moon"></div>
+
+<!-- Lightning -->
+<div class="lightning" style="left:30%"></div>
+<div class="lightning" style="left:70%; animation-delay:-2s;"></div>
+
+<!-- Clouds -->
+<div class="cloud cloud-1" style="animation-delay:-5s;"></div>
+<div class="cloud cloud-2" style="animation-delay:-15s;"></div>
+<div class="cloud cloud-3" style="animation-delay:-10s;"></div>
+<div class="cloud cloud-1" style="animation-delay:-20s; top:110px;"></div>
+<div class="cloud cloud-2" style="animation-delay:-25s; top:150px;"></div>
+
+<!-- Mountains -->
+<div class="mountains">
+  <div class="mountain mt1"></div>
+  <div class="mountain mt2"></div>
+  <div class="mountain mt3"></div>
+  <div class="mountain mt4"></div>
+  <div class="mountain mt5"></div>
+  <div class="mountain mt6"></div>
+</div>
+
+<!-- Ground -->
+<div class="ground">
+  <div class="road">
+    <div class="road-line"></div>
+    <div class="road-line"></div>
+    <div class="road-line"></div>
+  </div>
+</div>
+
+<!-- Trees -->
+<div id="trees"></div>
+
+<!-- Flowers -->
+<div id="flowers"></div>
+
+<!-- Speed Lines -->
+<div class="speed-lines" id="speedLines"></div>
+
+<!-- Power Aura -->
+<div class="power-aura"></div>
+
+<!-- Anime Hero Character -->
+<div class="hero-wrap">
+  <div class="hero">
+    <!-- Hair -->
+    <div class="hero-hair"></div>
+    <!-- Head -->
+    <div class="hero-head">
+      <div class="hero-eye hero-eye-l"></div>
+      <div class="hero-eye hero-eye-r"></div>
+      <div class="hero-blush hero-blush-l"></div>
+      <div class="hero-blush hero-blush-r"></div>
+      <div class="hero-mouth"></div>
+    </div>
+    <!-- Scarf -->
+    <div class="hero-scarf"></div>
+    <!-- Body -->
+    <div class="hero-body">
+      <div class="hero-arm hero-arm-l"></div>
+      <div class="hero-arm hero-arm-r"></div>
+    </div>
+    <!-- Legs -->
+    <div class="hero-legs">
+      <div>
+        <div class="hero-leg hero-leg-l"></div>
+        <div class="hero-shoe"></div>
+      </div>
+      <div>
+        <div class="hero-leg hero-leg-r"></div>
+        <div class="hero-shoe"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fox Sidekick -->
+<div class="fox-wrap">
+  <div class="fox-head">
+    <div class="fox-ear fox-ear-l"></div>
+    <div class="fox-ear fox-ear-r"></div>
+    <div class="fox-eye fox-eye-l"></div>
+    <div class="fox-eye fox-eye-r"></div>
+    <div class="fox-nose"></div>
+  </div>
+  <div class="fox-body">
+    <div class="fox-tail"></div>
+  </div>
+</div>
+
+<!-- Energy Orbs -->
+<div class="orb" style="width:20px;height:20px;background:radial-gradient(circle,#ff6ad5,transparent);left:15%;top:25%;animation-duration:3s;box-shadow:0 0 20px #ff6ad5;"></div>
+<div class="orb" style="width:14px;height:14px;background:radial-gradient(circle,#00f0ff,transparent);left:75%;top:35%;animation-duration:4s;animation-delay:-2s;box-shadow:0 0 14px #00f0ff;"></div>
+<div class="orb" style="width:18px;height:18px;background:radial-gradient(circle,#ffd700,transparent);left:85%;top:20%;animation-duration:3.5s;animation-delay:-1s;box-shadow:0 0 18px #ffd700;"></div>
+<div class="orb" style="width:10px;height:10px;background:radial-gradient(circle,#39ff14,transparent);left:10%;top:40%;animation-duration:5s;animation-delay:-3s;box-shadow:0 0 10px #39ff14;"></div>
+
+<!-- Title -->
+<div class="title-wrap">
+  <div class="title-jp">✨ ANIME WORLD ✨</div>
+  <div class="title-sub">Click anywhere for magic</div>
+</div>
+
+<!-- Info Panel -->
+<div class="info-panel">
+  ⚡ Stars Collected: <span id="score">0</span><br>
+  🌸 Click Screen for Effects!
+</div>
+
+<!-- Sparkles container -->
+<div id="sparkles"></div>
+
+<script>
+  // ===== STARS =====
+  const starsContainer = document.getElementById('stars');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const size=Math.random()*3+1;
+    s.style.cssText=`
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      animation-duration:${Math.random()*3+1}s;
+      animation-delay:-${Math.random()*3}s;
+    `;
+    starsContainer.appendChild(s);
+  }
+
+  // ===== TREES =====
+  const treesContainer=document.getElementById('trees');
+  const treePositions=[5,15,22,38,62,70,78,88,93];
+  treePositions.forEach(left=>{
+    const wrap=document.createElement('div');
+    wrap.className='tree';
+    const scale=0.6+Math.random()*0.8;
+    wrap.style.cssText=`left:${left}%;bottom:18%;transform:scale(${scale});`;
+    wrap.innerHTML=`<div class="tree-top"></div><div class="tree-top2"></div><div class="tree-trunk"></div>`;
+    treesContainer.appendChild(wrap);
+  });
+
+  // ===== FLOWERS =====
+  const flowersContainer=document.getElementById('flowers');
+  const emojis=['🌸','🌺','🌼','🌻','💐','🌷'];
+  for(let i=0;i<20;i++){
+    const f=document.createElement('div');
+    f.className='flower';
+    const emoji=emojis[Math.floor(Math.random()*emojis.length)];
+    f.style.cssText=`left:${Math.random()*100}%;bottom:18%;animation-delay:-${Math.random()*2}s;`;
+    f.innerHTML=`<div class="flower-head">${emoji}</div><div class="flower-stem"></div>`;
+    flowersContainer.appendChild(f);
+  }
+
+  // ===== SPEED LINES =====
+  const speedLinesContainer=document.getElementById('speedLines');
+  for(let i=0;i<8;i++){
+    const line=document.createElement('div');
+    line.className='speed-line';
+    const width=80+Math.random()*120;
+    line.style.cssText=`
+      width:${width}px;
+      top:${Math.random()*100}%;
+      animation-duration:${0.3+Math.random()*0.4}s;
+      animation-delay:-${Math.random()*0.5}s;
+    `;
+    speedLinesContainer.appendChild(line);
+  }
+
+  // ===== FLOATING SPARKLES =====
+  const sparklesContainer=document.getElementById('sparkles');
+  const sparkleEmojis=['⭐','✨','💫','🌟','⚡'];
+  function createSparkle(){
+    const s=document.createElement('div');
+    s.className='sparkle';
+    s.textContent=sparkleEmojis[Math.floor(Math.random()*sparkleEmojis.length)];
+    s.style.cssText=`
+      left:${Math.random()*100}%;
+      font-size:${12+Math.random()*16}px;
+      animation-duration:${3+Math.random()*4}s;
+      animation-delay:-${Math.random()*4}s;
+    `;
+    sparklesContainer.appendChild(s);
+    setTimeout(()=>s.remove(), 8000);
+  }
+  setInterval(createSparkle, 600);
+
+  // ===== FIREWORKS =====
+  function createFirework(x,y){
+    const colors=['#ff6ad5','#00f0ff','#ffd700','#39ff14','#ff4444','#ffffff'];
+    for(let i=0;i<12;i++){
+      const f=document.createElement('div');
+      f.className='firework';
+      const angle=Math.random()*360;
+      const dist=30+Math.random()*60;
+      const dx=Math.cos(angle*Math.PI/180)*dist;
+      const dy=Math.sin(angle*Math.PI/180)*dist;
+      f.style.cssText=`
+        left:${x}px; top:${y}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        transform:translate(${dx}px,${dy}px);
+        box-shadow:0 0 6px currentColor;
+        animation-duration:${0.6+Math.random()*0.6}s;
+      `;
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(),1200);
+    }
+  }
+
+  // ===== CLICK EFFECTS =====
+  let score=0;
+  const clickEmojis=['💥','⭐','✨','💫','🌟','💥','🔥','❤️','💎','🎯'];
+  document.addEventListener('click',e=>{
+    score++;
+    document.getElementById('score').textContent=score;
+
+    // Click burst emoji
+    const burst=document.createElement('div');
+    burst.className='click-burst';
+    burst.textContent=clickEmojis[Math.floor(Math.random()*clickEmojis.length)];
+    burst.style.cssText=`left:${e.clientX-20}px;top:${e.clientY-20}px;`;
+    document.body.appendChild(burst);
+    setTimeout(()=>burst.remove(),900);
+
+    // Fireworks
+    createFirework(e.clientX,e.clientY);
+  });
+
+  // ===== PERIODIC FIREWORKS =====
+  setInterval(()=>{
+    const x=Math.random()*window.innerWidth;
+    const y=Math.random()*window.innerHeight*0.6;
+    createFirework(x,y);
+  },2500);
+
+  // ===== CLOUD COLORS =====
+  // Dynamic color shift for orbs
+  let hue=0;
+  setInterval(()=>{
+    hue=(hue+1)%360;
+    document.documentElement.style.setProperty('--accent',`hsl(${hue},100%,70%)`);
+  },50);
+</script>
+</body>
+</html>
