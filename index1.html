@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProjectLabs — AWS DevOps Portfolio</title>
+
+<!-- FAVICON: ProjectLabs tree logo -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%230a0e1a'/%3E%3Crect x='20' y='30' width='8' height='13' rx='2' fill='%23f97316'/%3E%3Cellipse cx='24' cy='22' rx='16' ry='11' fill='%2322c55e'/%3E%3Cellipse cx='24' cy='17' rx='11' ry='8' fill='%2316a34a'/%3E%3Cellipse cx='24' cy='13' rx='7' ry='6' fill='%2315803d'/%3E%3Ctext x='24' y='38' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='5.5' fill='%230a0e1a'%3EPL%3C/text%3E%3C/svg%3E">
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0e1a; --surface:#111827; --card:#161d2e; --border:#1f2d45;
+    --accent:#f97316; --accent2:#38bdf8; --green:#22c55e;
+    --text:#e2e8f0; --muted:#64748b;
+    --font-head:'Syne',sans-serif; --font-mono:'Space Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+  /* LOADING BAR */
+  .loading-bar{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:9999;transition:width .3s ease;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:30px;right:30px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:14px 22px;border-radius:4px;font-size:.75rem;z-index:9000;display:none;animation:fadeUp .3s ease;max-width:300px;}
+  .toast.show{display:block;}.toast.success{border-left:3px solid var(--green);}.toast.error{border-left:3px solid #ef4444;}.toast.info{border-left:3px solid var(--accent2);}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:10;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,14,26,.92);backdrop-filter:blur(12px);}
+
+  /* LOGO */
+  .logo-wrap{display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer;}
+  .logo-svg{width:42px;height:42px;flex-shrink:0;}
+  .logo-name{font-family:var(--font-head);font-size:1.3rem;font-weight:800;letter-spacing:-1px;line-height:1.1;}
+  .logo-name .PL{color:var(--accent);font-size:1.45rem;}
+  .logo-name .rest{color:var(--accent2);}
+  .logo-sub{font-size:.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+
+  .header-right{display:flex;align-items:center;gap:16px;}
+  .sync-status{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);}
+  .sync-dot.synced{background:var(--green);animation:pulse 2s infinite;}
+  .sync-dot.syncing{background:var(--accent);animation:pulse .5s infinite;}
+  .sync-dot.error{background:#ef4444;}
+
+  .admin-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);color:var(--accent);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:2px;}
+  .viewer-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--accent2);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:2px;}
+
+  .login-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;font-family:var(--font-mono);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+  .login-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .logout-btn{background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;padding:7px 16px;font-family:var(--font-mono);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+  .logout-btn:hover{border-color:#ef4444;background:rgba(239,68,68,.05);}
+
+  /* HERO */
+  .hero{position:relative;z-index:1;padding:70px 40px 50px;max-width:1100px;margin:0 auto;animation:fadeUp .7s ease both;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--accent);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:2px;margin-bottom:24px;}
+  .hero-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.5s infinite;}
+  .hero h1{font-family:var(--font-head);font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1;letter-spacing:-2px;margin-bottom:20px;}
+  .hero h1 .line2{color:var(--accent2);}
+  .hero p{color:var(--muted);font-size:.85rem;line-height:1.8;max-width:600px;margin-bottom:40px;}
+  .hero-stats{display:flex;gap:40px;padding:24px 0;border-top:1px solid var(--border);}
+  .stat-num{font-family:var(--font-head);font-size:2rem;font-weight:800;color:var(--accent);}
+  .stat-label{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+
+  /* MAIN */
+  .main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 40px 80px;}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .section-title{font-family:var(--font-head);font-size:1.4rem;font-weight:800;letter-spacing:-1px;}
+  .section-title span{color:var(--accent2);}
+
+  .add-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#000;border:none;padding:10px 20px;font-family:var(--font-mono);font-size:.75rem;font-weight:700;letter-spacing:1px;cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all .2s;}
+  .add-btn:hover{background:#fb923c;transform:translateY(-1px);}
+
+  /* VIEWER BANNER */
+  .viewer-banner{background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.15);border-radius:4px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:.72rem;color:var(--muted);line-height:1.6;}
+  .viewer-banner .vb-icon{font-size:1.6rem;flex-shrink:0;}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;align-items:center;}
+  .filter-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 16px;font-family:var(--font-mono);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+  .filter-btn:hover,.filter-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(56,189,248,.05);}
+  .search-input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:.75rem;padding:7px 14px;border-radius:2px;outline:none;transition:border-color .2s;}
+  .search-input:focus{border-color:var(--accent2);}
+  .search-input::placeholder{color:var(--muted);}
+
+  /* GRID */
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+  .project-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px;position:relative;overflow:hidden;transition:all .3s;animation:fadeUp .4s ease both;}
+  .project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .3s;}
+  .project-card:hover{border-color:rgba(56,189,248,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  .project-card:hover::before{opacity:1;}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+  .card-icon{width:40px;height:40px;border-radius:4px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+  .status-badge{font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:2px;font-weight:700;}
+  .status-completed{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+  .status-in-progress{background:rgba(249,115,22,.1);color:var(--accent);border:1px solid rgba(249,115,22,.2);}
+  .status-planned{background:rgba(100,116,139,.1);color:var(--muted);border:1px solid rgba(100,116,139,.2);}
+  .card-title{font-family:var(--font-head);font-size:1.05rem;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;}
+  .card-desc{color:var(--muted);font-size:.72rem;line-height:1.7;margin-bottom:16px;}
+  .card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+  .card-tag{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.15);color:var(--accent2);font-size:.6rem;padding:2px 8px;letter-spacing:1px;text-transform:uppercase;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);}
+  .card-date{color:var(--muted);font-size:.65rem;letter-spacing:1px;}
+  .card-actions{display:flex;gap:8px;}
+  .card-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 12px;font-family:var(--font-mono);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;text-decoration:none;display:inline-block;}
+  .card-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .card-btn.delete:hover{border-color:#ef4444;color:#ef4444;}
+
+  /* EMPTY */
+  .empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted);}
+  .empty-icon{font-size:3rem;margin-bottom:20px;opacity:.3;}
+  .empty-state h3{font-family:var(--font-head);font-size:1.5rem;margin-bottom:10px;color:var(--text);opacity:.5;}
+  .empty-state p{font-size:.75rem;line-height:1.7;}
+
+  /* SKELETON */
+  .skeleton-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px;animation:shimmer 1.5s infinite;}
+  .skeleton-line{height:12px;background:var(--border);border-radius:2px;margin-bottom:12px;}
+  .skeleton-line.short{width:40%;}.skeleton-line.medium{width:70%;}
+  @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.5}}
+
+  /* LEARNING */
+  .learning-section{margin-top:60px;}
+  .progress-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+  .progress-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;}
+  .progress-label{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .progress-title{font-family:var(--font-head);font-size:.9rem;font-weight:700;margin-bottom:14px;}
+  .progress-bar-wrap{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+  .progress-pct{font-size:.65rem;color:var(--accent2);margin-top:6px;text-align:right;}
+
+  /* MODALS */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);backdrop-filter:blur(4px);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:36px;width:90%;max-width:560px;animation:fadeUp .3s ease both;margin:auto;}
+  .modal h2{font-family:var(--font-head);font-size:1.4rem;font-weight:800;margin-bottom:24px;letter-spacing:-1px;}
+  .modal h2 span{color:var(--accent);}
+
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .form-group input,.form-group textarea,.form-group select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:.8rem;padding:10px 14px;border-radius:2px;outline:none;transition:border-color .2s;resize:none;}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--accent2);}
+  .form-group select option{background:var(--surface);}
+
+  .tag-input-wrap{display:flex;gap:8px;}
+  .tag-input-wrap input{flex:1;}
+  .tag-add-btn{background:var(--surface);border:1px solid var(--border);color:var(--accent2);padding:0 16px;font-family:var(--font-mono);font-size:1rem;cursor:pointer;border-radius:2px;}
+  .tags-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .tag-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);color:var(--accent2);font-size:.65rem;padding:3px 10px;border-radius:2px;}
+  .tag-pill .rm{cursor:pointer;color:var(--muted);}.tag-pill .rm:hover{color:#ef4444;}
+
+  .form-actions{display:flex;gap:12px;margin-top:24px;}
+  .btn-save{flex:1;background:var(--accent);color:#000;border:none;padding:12px;font-family:var(--font-mono);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:2px;transition:all .2s;}
+  .btn-save:hover{background:#fb923c;}.btn-save:disabled{opacity:.6;cursor:not-allowed;}
+  .btn-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 24px;font-family:var(--font-mono);font-size:.8rem;cursor:pointer;border-radius:2px;}
+
+  /* LOGIN SPECIAL */
+  .login-modal{max-width:400px;}
+  .login-logo{text-align:center;margin-bottom:28px;}
+  .login-logo .lg-name{font-family:var(--font-head);font-weight:800;font-size:1.4rem;letter-spacing:-1px;margin-top:10px;}
+  .login-logo small{font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+  .pw-wrap{position:relative;}
+  .pw-wrap input{padding-right:46px;}
+  .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;}
+  .login-err{color:#ef4444;font-size:.7rem;margin-bottom:12px;display:none;}
+
+  /* DETAIL */
+  .detail-label{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .detail-value{font-size:.82rem;line-height:1.7;color:var(--text);margin-bottom:18px;}
+  .detail-link{color:var(--accent2);word-break:break-all;text-decoration:none;}
+  .detail-link:hover{text-decoration:underline;}
+
+  footer{position:relative;z-index:1;text-align:center;padding:36px 40px;border-top:1px solid var(--border);color:var(--muted);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  @media(max-width:600px){
+    header{padding:12px 16px;}
+    .hero{padding:36px 16px 30px;}
+    .main{padding:0 16px 60px;}
+    .hero-stats{gap:20px;}
+    .logo-sub{display:none;}
+    .sync-status{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loading-bar"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <a class="logo-wrap" href="#">
+    <!-- ProjectLabs Tree Logo -->
+    <svg class="logo-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="8" fill="#0a0e1a"/>
+      <!-- Trunk (storage/repository) -->
+      <rect x="20" y="30" width="8" height="14" rx="2" fill="#f97316"/>
+      <!-- Tree canopy layers -->
+      <ellipse cx="24" cy="23" rx="17" ry="12" fill="#22c55e"/>
+      <ellipse cx="24" cy="17" rx="12" ry="9"  fill="#16a34a"/>
+      <ellipse cx="24" cy="12" rx="8"  ry="7"  fill="#15803d"/>
+      <!-- PL label on trunk -->
+      <text x="24" y="39" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="5" fill="#fff" opacity="0.85">PL</text>
+    </svg>
+    <div>
+      <div class="logo-name">
+        <span class="PL">P</span><span class="rest">roject</span><span class="PL">L</span><span class="rest">abs</span>
+      </div>
+      <div class="logo-sub">AWS DevOps Portfolio</div>
+    </div>
+  </a>
+
+  <div class="header-right">
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-text">Loading...</span>
+    </div>
+    <div id="role-badge"></div>
+    <button class="login-btn" id="auth-btn" onclick="handleAuthBtn()">🔐 Admin</button>
+  </div>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-badge">AWS DevOps Learning Journey</div>
+  <h1>My DevOps<br><span class="line2">Project Vault</span></h1>
+  <p>All my AWS & DevOps projects stored in one trunk — from CI/CD pipelines to Kubernetes deployments. Managed by admin, visible to all.</p>
+  <div class="hero-stats">
+    <div><div class="stat-num" id="total-count">—</div><div class="stat-label">Total Projects</div></div>
+    <div><div class="stat-num" id="done-count">—</div><div class="stat-label">Completed</div></div>
+    <div><div class="stat-num" id="wip-count">—</div><div class="stat-label">In Progress</div></div>
+  </div>
+</section>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main" id="projects">
+  <div class="section-header">
+    <div class="section-title">All <span>Projects</span></div>
+    <button class="add-btn" id="add-btn" onclick="openAddModal()" style="display:none">+ Add Project</button>
+  </div>
+
+  <!-- Viewer notice -->
+  <div class="viewer-banner" id="viewer-banner" style="display:none">
+    <span class="vb-icon">👀</span>
+    <div>You are viewing <strong style="color:var(--text)">ProjectLabs</strong> — Pavan Bathina's AWS DevOps project portfolio. Projects are <strong style="color:var(--accent2)">read-only</strong> for visitors. Only the admin can add or modify projects.</div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" class="search-input" id="search-input" placeholder="Search projects..." oninput="renderProjects()">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Completed',this)">Completed</button>
+    <button class="filter-btn" onclick="setFilter('In Progress',this)">In Progress</button>
+    <button class="filter-btn" onclick="setFilter('Planned',this)">Planned</button>
+  </div>
+
+  <div class="projects-grid" id="projects-grid">
+    <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line"></div></div>
+    <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line"></div></div>
+    <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line"></div></div>
+  </div>
+
+  <!-- Learning Progress -->
+  <div class="learning-section" id="learning">
+    <div class="section-header">
+      <div class="section-title">Learning <span>Progress</span></div>
+    </div>
+    <div class="progress-cards">
+      <div class="progress-card"><div class="progress-label">Module</div><div class="progress-title">AWS Core Services</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:80%"></div></div><div class="progress-pct">80%</div></div>
+      <div class="progress-card"><div class="progress-label">Module</div><div class="progress-title">CI/CD Pipelines</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:60%"></div></div><div class="progress-pct">60%</div></div>
+      <div class="progress-card"><div class="progress-label">Module</div><div class="progress-title">Docker & Kubernetes</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:45%"></div></div><div class="progress-pct">45%</div></div>
+      <div class="progress-card"><div class="progress-label">Module</div><div class="progress-title">Terraform / IaC</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:30%"></div></div><div class="progress-pct">30%</div></div>
+      <div class="progress-card"><div class="progress-label">Module</div><div class="progress-title">Monitoring & Logging</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:20%"></div></div><div class="progress-pct">20%</div></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;">
+    <svg viewBox="0 0 48 48" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="8" fill="#0a0e1a"/><rect x="20" y="30" width="8" height="14" rx="2" fill="#f97316"/>
+      <ellipse cx="24" cy="23" rx="17" ry="12" fill="#22c55e"/><ellipse cx="24" cy="17" rx="12" ry="9" fill="#16a34a"/><ellipse cx="24" cy="12" rx="8" ry="7" fill="#15803d"/>
+      <text x="24" y="39" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="5" fill="#fff" opacity="0.85">PL</text>
+    </svg>
+    <span style="color:var(--accent);font-family:var(--font-head);font-size:1rem;font-weight:800;letter-spacing:-1px"><span style="font-size:1.1rem">P</span>roject<span style="font-size:1.1rem">L</span>abs</span>
+  </div>
+  Built with 💛 &nbsp;|&nbsp; <span style="color:var(--accent)">Pavan Bathina</span> &nbsp;|&nbsp; AWS DevOps Journey ☁️
+</footer>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal login-modal">
+    <div class="login-logo">
+      <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="10" fill="#0a0e1a"/>
+        <rect x="27" y="40" width="10" height="18" rx="2" fill="#f97316"/>
+        <ellipse cx="32" cy="30" rx="22" ry="15" fill="#22c55e"/>
+        <ellipse cx="32" cy="22" rx="15" ry="11" fill="#16a34a"/>
+        <ellipse cx="32" cy="15" rx="10" ry="8"  fill="#15803d"/>
+        <text x="32" y="52" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="7" fill="#fff" opacity="0.9">PL</text>
+      </svg>
+      <div class="lg-name"><span style="color:var(--accent)">P</span>roject<span style="color:var(--accent)">L</span>abs</div>
+      <small>Admin Login</small>
+    </div>
+    <div class="form-group">
+      <label>Admin Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="pw-input" placeholder="Enter your admin password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="eye-btn" onclick="togglePw()" title="Show/hide">👁</button>
+      </div>
+    </div>
+    <div class="login-err" id="login-err">❌ Incorrect password. Please try again.</div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="doLogin()">🔐 Login</button>
+      <button class="btn-cancel" onclick="closeLoginModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADD PROJECT MODAL ═══ -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h2>Add <span>Project</span></h2>
+    <div class="form-group"><label>Project Title *</label><input type="text" id="f-title" placeholder="e.g. EC2 Auto-Scaling Setup"></div>
+    <div class="form-group"><label>Description</label><textarea id="f-desc" rows="3" placeholder="What did you build? What did you learn?"></textarea></div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="f-category">
+        <option>EC2 / Compute</option><option>S3 / Storage</option><option>CI/CD</option>
+        <option>Docker / K8s</option><option>Networking / VPC</option><option>IAM / Security</option>
+        <option>Terraform / IaC</option><option>Monitoring</option><option>Lambda / Serverless</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="f-status"><option>Completed</option><option>In Progress</option><option>Planned</option></select>
+    </div>
+    <div class="form-group"><label>GitHub / Project Link</label><input type="text" id="f-link" placeholder="https://github.com/yourname/project"></div>
+    <div class="form-group"><label>Notes / Key Learnings</label><textarea id="f-notes" rows="3" placeholder="Issues faced, commands used, key learnings..."></textarea></div>
+    <div class="form-group">
+      <label>Tags (AWS services used)</label>
+      <div class="tag-input-wrap">
+        <input type="text" id="f-tag-input" placeholder="e.g. EC2, S3, CodePipeline" onkeydown="if(event.key==='Enter'){addTag();event.preventDefault()}">
+        <button class="tag-add-btn" onclick="addTag()">+</button>
+      </div>
+      <div class="tags-preview" id="tags-preview"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" id="save-btn" onclick="saveProject()">💾 Save Project</button>
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAIL MODAL ═══ -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <h2 id="d-title">Project <span>Details</span></h2>
+    <div id="detail-content"></div>
+    <div class="form-actions" style="margin-top:20px">
+      <button class="btn-cancel" style="width:100%" onclick="closeDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══ CONFIG ═══════════════════════════════════════════════
+  const BIN_ID  = '69a40d2b43b1c97be9a8e7cf';
+  const API_KEY = '$2a$10$d1FB16lmf6uNp2gljEsHz.GeLcl7BVBzsn0/TDp53jgrwpcYtSLLi';
+  const BASE    = 'https://api.jsonbin.io/v3/b';
+
+  // ⚠️ YOUR SECRET ADMIN PASSWORD — Only you know this!
+  const ADMIN_PASS = 'Pavan@DevOps2025';
+
+  // 👥 SHARED PASSWORD — Give this to your 5 trusted users (full access)
+  const SHARED_PASS = 'ProjectLabs@2025';
+  // ══════════════════════════════════════════════════════════
+
+  const ICONS = {'EC2 / Compute':'🖥️','S3 / Storage':'🪣','CI/CD':'🔄','Docker / K8s':'🐳','Networking / VPC':'🌐','IAM / Security':'🔒','Terraform / IaC':'🏗️','Monitoring':'📊','Lambda / Serverless':'⚡','Other':'📦'};
+
+  let projects=[], currentFilter='all', currentTags=[], saving=false, isAdmin=false;
+
+  // ── SESSION ───────────────────────────────────────────────
+  function checkSession(){
+    isAdmin = sessionStorage.getItem('pl_admin')==='true';
+    applyRole();
+  }
+  function applyRole(){
+    const badge=document.getElementById('role-badge');
+    const authBtn=document.getElementById('auth-btn');
+    const addBtn=document.getElementById('add-btn');
+    const vBanner=document.getElementById('viewer-banner');
+    if(isAdmin){
+      badge.innerHTML='<div class="admin-badge">🔑 Admin Mode</div>';
+      authBtn.className='logout-btn'; authBtn.textContent='Logout';
+      addBtn.style.display='inline-flex'; vBanner.style.display='none';
+    } else {
+      badge.innerHTML='<div class="viewer-badge">👁 Viewer</div>';
+      authBtn.className='login-btn'; authBtn.textContent='🔐 Admin';
+      addBtn.style.display='none'; vBanner.style.display='flex';
+    }
+    renderProjects();
+  }
+  function handleAuthBtn(){
+    if(isAdmin){ isAdmin=false; sessionStorage.removeItem('pl_admin'); applyRole(); showToast('👋 Logged out.','info'); }
+    else openLoginModal();
+  }
+
+  // ── LOGIN ─────────────────────────────────────────────────
+  function openLoginModal(){
+    document.getElementById('pw-input').value='';
+    document.getElementById('login-err').style.display='none';
+    document.getElementById('login-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('pw-input').focus(),200);
+  }
+  function closeLoginModal(){ document.getElementById('login-modal').classList.remove('open'); }
+  function togglePw(){ const i=document.getElementById('pw-input'); i.type=i.type==='password'?'text':'password'; }
+  function doLogin(){
+    const pw=document.getElementById('pw-input').value;
+    if(pw===ADMIN_PASS || pw===SHARED_PASS){
+      isAdmin=true; sessionStorage.setItem('pl_admin','true');
+      closeLoginModal(); applyRole();
+      const who = pw===ADMIN_PASS ? 'Welcome back, Admin! 🔑' : 'Welcome! Full access granted. 👥';
+      showToast('✅ ' + who,'success');
+    } else {
+      document.getElementById('login-err').style.display='block';
+      document.getElementById('pw-input').value='';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────
+  function setLoading(p){ const b=document.getElementById('loading-bar'); b.style.width=p+'%'; if(p>=100)setTimeout(()=>b.style.width='0%',400); }
+  function setSyncStatus(s,t){ document.getElementById('sync-dot').className='sync-dot '+s; document.getElementById('sync-text').textContent=t; }
+  function showToast(msg,type='info'){ const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast show ${type}`; clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),3200); }
+
+  // ── CLOUD ─────────────────────────────────────────────────
+  async function loadProjects(){
+    setSyncStatus('syncing','Loading...'); setLoading(30);
+    try{
+      const res=await fetch(`${BASE}/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+      const data=await res.json();
+      projects=data.record.projects||[];
+      setLoading(100); setSyncStatus('synced','Synced ✓');
+      updateStats(); renderProjects();
+    } catch(e){
+      setLoading(100); setSyncStatus('error','Offline');
+      showToast('Could not load projects. Check internet.','error');
+      document.getElementById('projects-grid').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Connection Error</h3><p>Please refresh the page.</p></div>';
+    }
+  }
+  async function saveToCloud(){
+    setSyncStatus('syncing','Saving...'); setLoading(40);
+    const res=await fetch(`${BASE}/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify({projects})});
+    if(!res.ok) throw new Error('Save failed');
+    setLoading(100); setSyncStatus('synced','Synced ✓');
+  }
+
+  // ── STATS ─────────────────────────────────────────────────
+  function updateStats(){
+    document.getElementById('total-count').textContent=projects.length;
+    document.getElementById('done-count').textContent=projects.filter(p=>p.status==='Completed').length;
+    document.getElementById('wip-count').textContent=projects.filter(p=>p.status==='In Progress').length;
+  }
+
+  // ── FILTER ────────────────────────────────────────────────
+  function setFilter(f,el){ currentFilter=f; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderProjects(); }
+
+  // ── RENDER ────────────────────────────────────────────────
+  function renderProjects(){
+    const q=(document.getElementById('search-input').value||'').toLowerCase();
+    const filtered=projects.filter(p=>{
+      const mF=currentFilter==='all'||p.status===currentFilter;
+      const mS=!q||p.title.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)||(p.tags||[]).some(t=>t.toLowerCase().includes(q));
+      return mF&&mS;
+    });
+    const grid=document.getElementById('projects-grid');
+    if(!filtered.length){
+      grid.innerHTML=`<div class="empty-state"><div class="empty-icon">📂</div><h3>No Projects Yet</h3><p>${isAdmin?'Click "+ Add Project" to start adding your DevOps projects.':'No projects have been added yet. Check back soon!'}</p></div>`;
+      return;
+    }
+    grid.innerHTML=filtered.map((p,i)=>`
+      <div class="project-card" style="animation-delay:${i*.06}s">
+        <div class="card-top">
+          <div class="card-icon">${ICONS[p.category]||'📦'}</div>
+          <span class="status-badge status-${(p.status||'').toLowerCase().replace(' ','-')}">${p.status}</span>
+        </div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.desc||'No description provided.'}</div>
+        <div class="card-tags">${(p.tags||[]).map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>
+        <div class="card-footer">
+          <div class="card-date">${p.date||''}</div>
+          <div class="card-actions">
+            <button class="card-btn" onclick="viewProject('${p.id}')">View</button>
+            ${p.link?`<a class="card-btn" href="${p.link}" target="_blank">GitHub</a>`:''}
+            ${isAdmin?`<button class="card-btn delete" onclick="deleteProject('${p.id}')">Delete</button>`:''}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── ADD MODAL ─────────────────────────────────────────────
+  function openAddModal(){
+    if(!isAdmin){showToast('❌ Admin login required.','error');return;}
+    currentTags=[];
+    ['f-title','f-desc','f-link','f-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-category').selectedIndex=0;
+    document.getElementById('f-status').selectedIndex=0;
+    document.getElementById('tags-preview').innerHTML='';
+    document.getElementById('add-modal').classList.add('open');
+  }
+  function closeAddModal(){ document.getElementById('add-modal').classList.remove('open'); }
+
+  function addTag(){
+    const inp=document.getElementById('f-tag-input');
+    const val=inp.value.trim();
+    if(!val||currentTags.includes(val)){inp.value='';return;}
+    currentTags.push(val); inp.value=''; refreshTags();
+  }
+  function removeTag(tag){ currentTags=currentTags.filter(t=>t!==tag); refreshTags(); }
+  function refreshTags(){
+    document.getElementById('tags-preview').innerHTML=currentTags.map(t=>`<span class="tag-pill">${t}<span class="rm" onclick="removeTag('${t}')">✕</span></span>`).join('');
+  }
+
+  // ── SAVE ──────────────────────────────────────────────────
+  async function saveProject(){
+    if(!isAdmin){showToast('❌ Admin login required.','error');return;}
+    const title=document.getElementById('f-title').value.trim();
+    if(!title){showToast('Please enter a project title!','error');return;}
+    if(saving)return;
+    saving=true;
+    const btn=document.getElementById('save-btn');
+    btn.disabled=true; btn.textContent='⏳ Saving...';
+    const project={
+      id:'p_'+Date.now(), title,
+      desc:document.getElementById('f-desc').value.trim(),
+      category:document.getElementById('f-category').value,
+      status:document.getElementById('f-status').value,
+      link:document.getElementById('f-link').value.trim(),
+      notes:document.getElementById('f-notes').value.trim(),
+      tags:[...currentTags],
+      date:new Date().toISOString().split('T')[0]
+    };
+    projects.unshift(project);
+    try{
+      await saveToCloud(); updateStats(); renderProjects();
+      closeAddModal(); showToast('✅ Project saved & synced to cloud!','success');
+    }catch(e){
+      projects.shift(); showToast('❌ Save failed. Check internet.','error'); setSyncStatus('error','Save failed');
+    }finally{
+      saving=false; btn.disabled=false; btn.textContent='💾 Save Project';
+    }
+  }
+
+  // ── DELETE ────────────────────────────────────────────────
+  async function deleteProject(id){
+    if(!isAdmin){showToast('❌ Admin login required.','error');return;}
+    if(!confirm('Delete this project? This cannot be undone.'))return;
+    const prev=[...projects];
+    projects=projects.filter(p=>p.id!==id);
+    updateStats(); renderProjects();
+    try{ await saveToCloud(); showToast('🗑️ Project deleted.','info'); }
+    catch(e){ projects=prev; updateStats(); renderProjects(); showToast('❌ Delete failed.','error'); }
+  }
+
+  // ── VIEW ──────────────────────────────────────────────────
+  function viewProject(id){
+    const p=projects.find(p=>p.id===id); if(!p)return;
+    document.getElementById('d-title').innerHTML=`${p.title.split(' ').slice(0,3).join(' ')} <span>Details</span>`;
+    document.getElementById('detail-content').innerHTML=`
+      <div class="detail-label">Category</div><div class="detail-value">${ICONS[p.category]||'📦'} ${p.category}</div>
+      <div class="detail-label">Status</div><div class="detail-value"><span class="status-badge status-${(p.status||'').toLowerCase().replace(' ','-')}">${p.status}</span></div>
+      <div class="detail-label">Description</div><div class="detail-value">${p.desc||'—'}</div>
+      <div class="detail-label">Notes / Key Learnings</div><div class="detail-value">${p.notes||'—'}</div>
+      <div class="detail-label">AWS Tags</div><div class="detail-value" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">${(p.tags||[]).map(t=>`<span class="card-tag">${t}</span>`).join('')||'—'}</div>
+      ${p.link?`<div class="detail-label">Project Link</div><div class="detail-value"><a class="detail-link" href="${p.link}" target="_blank">${p.link}</a></div>`:''}
+      <div class="detail-label">Date Added</div><div class="detail-value">${p.date}</div>`;
+    document.getElementById('detail-modal').classList.add('open');
+  }
+  function closeDetail(){ document.getElementById('detail-modal').classList.remove('open'); }
+
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+  // ── INIT ──────────────────────────────────────────────────
+  checkSession();
+  loadProjects();
+</script>
+</body>
+</html>
